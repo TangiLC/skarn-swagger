@@ -1,0 +1,35 @@
+{
+  "name": "skarn-swagger",
+  "version": "1.1.0",
+  "description": "Generates swagger doc & ui based on express existing routes.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SkarnFr/skarn-swagger.git"
+  },
+  "keywords": [
+    "express",
+    "swagger",
+    "api",
+    "swagger-ui",
+    "restful"
+  ],
+  "author": "Skarn",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "doctrine": "^3.0.0",
+    "doctrine-file": "^2.0.1",
+    "express-swaggerize-ui": "^1.1.0",
+    "glob": "^7.2.0",
+    "openapi-types": "^10.0.0",
+    "recursive-iterator": "^2.0.3",
+    "swagger-parser": "^10.0.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.21.0",
+    "@babel/core": "^7.21.4",
+    "@babel/preset-env": "^7.21.4"
+  }
+}
