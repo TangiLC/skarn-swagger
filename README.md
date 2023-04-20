@@ -1,11 +1,11 @@
 ### Express Swagger Generator
 
-> This is `express-swagger-generator@1.1.17` with fixed dependencies
+> This is `express-swagger-generator@1.1.17` with an improvement to Openapi 3.0.0
 
 #### Installation
 
 ```
-npm i express-swagger-generator-fix --save-dev
+npm i skarn-swagger --save-dev
 ```
 
 #### Usage
@@ -13,22 +13,23 @@ npm i express-swagger-generator-fix --save-dev
 ```
 const express = require('express');
 const app = express();
-const expressSwagger = require('express-swagger-generator-fix')(app);
+const expressSwagger = require('skarn-swagger')(app);
 
-let options = {
+const options = {
     swaggerDefinition: {
         info: {
             description: 'This is a sample server',
             title: 'Swagger',
             version: '1.0.0',
         },
-        host: 'localhost:3000',
-        basePath: '/v1',
+        servers: [
+			{ url: 'http://localhost' },
+            { url: 'https://localhost' },
+		],
         produces: [
             "application/json",
             "application/xml"
         ],
-        schemes: ['http', 'https']
     },
     basedir: __dirname, //app absolute path
     files: ['./routes/**/*.js'] //Path to the API handle folder
