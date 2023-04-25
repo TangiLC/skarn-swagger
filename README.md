@@ -15,25 +15,31 @@ const express = require('express');
 const app = express();
 const expressSwagger = require('skarn-swagger')(app);
 
-const options = {
-    swaggerDefinition: {
-        info: {
-            description: 'This is a sample server',
-            title: 'Swagger',
-            version: '1.0.0',
-        },
-        servers: [
-			{ url: 'http://localhost' },
-            { url: 'https://localhost' },
+let options = {
+	swaggerDefinition: {
+		info: {
+			description: 'This is a sample server',
+			title: 'Swagger',
+			version: '1.0.0',
+		},
+		servers: [
+			{ url: 'http://localhost/v1', description: 'localhost' },
+			{ url: 'https://yourUrlDev/v1', description: 'dev' },
+			{ url: 'https://yourUrlProd/v1', description: 'prod' },
 		],
-        produces: [
-            "application/json",
-            "application/xml"
-        ],
-    },
-    basedir: __dirname, //app absolute path
-    files: ['./routes/**/*.js'] //Path to the API handle folder
+		components: {
+			securitySchemes: {
+				BasicAuth: {
+					type: 'http',
+					scheme: 'basic',
+				},
+			},
+		},
+	},
+	basedir: __dirname,
+	files: ['./routes/**/*.js'] //Path to the API handle folder
 };
+
 expressSwagger(options)
 app.listen(3000);
 ```
