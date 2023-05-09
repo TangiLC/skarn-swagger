@@ -15,8 +15,10 @@ let options = {
 		],
 	},
 	basedir: __dirname,
-	files: ['./routes/**/*.js', './models/**/*.js'] //Path to the API handle folder
+	files: ['./routes/**/*.js', './models/**/*.js'], //Path to the API handle folder
+	responseFormats : ["application/json", "application/xml"]
 };
+
 
 swagger(options);
 
