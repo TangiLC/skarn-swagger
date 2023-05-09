@@ -37,7 +37,8 @@ let options = {
 		},
 	},
 	basedir: __dirname,
-	files: ['./routes/**/*.js'] //Path to the API handle folder
+	files: ['./routes/**/*.js'], //Path to the API handle folder
+	responsFormat : ["application/json", "application/xml", ...]
 };
 
 expressSwagger(options)
