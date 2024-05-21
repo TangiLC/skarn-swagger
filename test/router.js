@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const swagger = require('../lib/swagger').generateSpecAndMount(app);
+const swagger = require('../lib/swagger')//.generateSpecAndMount(app);
 
 let options = {
 	swaggerDefinition: {
