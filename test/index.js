@@ -14,9 +14,9 @@ let options = {
 	},
 	basedir: __dirname,
 	files: ["./routes/**/*.js", "./models/**/*.js"], //Path to the API handle folder
-	responseFormats: ["application/json", "application/xml"],
+	responseFormats: ["application/json"],
 };
-
+console.log("Calling swagger with options and outputFile.");
 swagger(options, outputFile);
 
 const testsRoutes = require("./routes/tests_r");

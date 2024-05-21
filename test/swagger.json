@@ -11,11 +11,88 @@
     }
   ],
   "openapi": "3.0.0",
-  "paths": {},
-  "components": {},
+  "paths": {
+    "/": {
+      "get": {
+        "parameters": [
+          {
+            "name": "media",
+            "in": "path",
+            "description": "le type de média faisant la requête - eg: website,mobile,appletv,worldwide",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "website",
+                "mobile",
+                "appletv",
+                "worldwide"
+              ]
+            }
+          }
+        ],
+        "description": "Function used to get a test class.",
+        "tags": [
+          "test"
+        ],
+        "responses": {
+          "200": {
+            "description": "A specific response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestClass"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SubTestClass": {
+        "required": [
+          "subid"
+        ],
+        "properties": {
+          "subid": {
+            "type": "number",
+            "description": "id de la class test"
+          }
+        }
+      },
+      "TestClass": {
+        "required": [
+          "id",
+          "name",
+          "sub"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "id de la class test"
+          },
+          "name": {
+            "type": "string",
+            "description": "name de la class test"
+          },
+          "sub": {
+            "$ref": "#/components/schemas/SubTestClass"
+          }
+        }
+      }
+    }
+  },
   "schemas": {},
   "responses": {},
   "parameters": {},
   "securityDefinitions": {},
-  "tags": []
+  "tags": [
+    {
+      "name": "test",
+      "description": "test operations"
+    }
+  ]
 }
