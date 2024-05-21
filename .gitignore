@@ -4,3 +4,6 @@ dist/
 npm-debug.log
 .idea
 *.iml
+/.github
+/.vscode
+/coverage

@@ -1,8 +1,8 @@
 "use strict";
 
-const parseFile = require("./parseFile");
-const parseFileContent = require("./parseFileContent");
-const Extractor = require("./Extractor");
+const parseFile = require("../utils/parseFile");
+const parseFileContent = require("../utils/parseFileContent");
+const Extractor = require("../utils/Extractor");
 
 exports.parseFile = parseFile;
 exports.parseFileContent = parseFileContent;
