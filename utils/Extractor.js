@@ -1,39 +1,7 @@
 "use strict";
 
-const _doctrine = require("doctrine");
-const _stream = require("stream");
-
-function _objectSpread(target) {
-	for (var i = 1; i < arguments.length; i++) {
-		var source = arguments[i] != null ? arguments[i] : {};
-		var ownKeys = Object.keys(source);
-		if (typeof Object.getOwnPropertySymbols === "function") {
-			ownKeys = ownKeys.concat(
-				Object.getOwnPropertySymbols(source).filter(function (sym) {
-					return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-				})
-			);
-		}
-		ownKeys.forEach(function (key) {
-			_defineProperty(target, key, source[key]);
-		});
-	}
-	return target;
-}
-
-function _defineProperty(obj, key, value) {
-	if (key in obj) {
-		Object.defineProperty(obj, key, {
-			value: value,
-			enumerable: true,
-			configurable: true,
-			writable: true,
-		});
-	} else {
-		obj[key] = value;
-	}
-	return obj;
-}
+const {parse} = require("comment-parser");
+const { Transform } = require("stream");
 
 const jsdoc = {
 	singleLine: /^\s*(\/\*{2}.*\*\/)\s*$/,
@@ -42,16 +10,10 @@ const jsdoc = {
 	end: /^\s*\*\/\s*$/,
 };
 
-class Extractor extends _stream.Transform {
+class Extractor extends Transform {
 	constructor(opts = {}) {
-		super({
-			objectMode: true,
-		});
-
-		_defineProperty(this, "unfinishedChunk", []);
-
-		_defineProperty(this, "opts", {});
-
+		super({ objectMode: true });
+		this.unfinishedChunk = [];
 		this.opts = opts;
 	}
 
@@ -74,7 +36,7 @@ class Extractor extends _stream.Transform {
 		const match = line.match(jsdoc.singleLine);
 
 		if (match) {
-			// singleline
+			// single line
 			return this.addDoc(match[1].trim());
 		} else if (line.match(jsdoc.start)) {
 			// start multiline
@@ -88,22 +50,15 @@ class Extractor extends _stream.Transform {
 				// line multiline
 				this.addLine(line);
 			} else {
-				// invalid line inbetween jsdoc
+				// invalid line in between jsdoc
 				this.resetChunk();
 			}
 		}
-
 		return null;
 	}
 
 	addDoc(docBlock) {
-		const comment = (0, _doctrine.parse)(
-			docBlock,
-			_objectSpread({}, this.opts, {
-				unwrap: true,
-			})
-		); // $FlowIssue This is correct as objectMode === true
-
+		const comment = parse(docBlock);
 		this.push(comment);
 		return comment;
 	}
@@ -111,8 +66,8 @@ class Extractor extends _stream.Transform {
 	_transform(chunk, encoding, callback) {
 		const lines = chunk.toString().split(/\r?\n/);
 
-		while (lines.length) {
-			this.consumeLine(lines.shift());
+		for (const line of lines) {
+			this.consumeLine(line);
 		}
 
 		callback();
@@ -122,8 +77,8 @@ class Extractor extends _stream.Transform {
 		const comments = [];
 		const lines = content.toString().split(/\r?\n/);
 
-		while (lines.length) {
-			const comment = this.consumeLine(lines.shift());
+		for (const line of lines) {
+			const comment = this.consumeLine(line);
 			if (comment) comments.push(comment);
 		}
 
