@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const Extractor = require("./Extractor");
+const stream = require("stream");
 
 const validateCallback = (options, callback) => {
 	if (!callback && typeof options === "function") {
@@ -19,7 +20,20 @@ const parse = (file, options, callback, content = false) => {
 	const { options: opts, callback: cb } = validateCallback(options, callback);
 
 	const collected = [];
-	fs.createReadStream(file, { encoding: "utf8" })
+	let inputStream;
+
+	if (content) {
+		inputStream = new stream.Readable({
+			read() {
+				this.push(file);
+				this.push(null);
+			},
+		});
+	} else {
+		inputStream = fs.createReadStream(file, { encoding: "utf8" });
+	}
+
+	inputStream
 		.on("error", cb)
 		.pipe(new Extractor(opts))
 		.on("error", cb)
