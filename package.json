@@ -21,9 +21,11 @@
 	"license": "MIT",
 	"dependencies": {
 		"comment-parser": "^1.4.1",
+		"doctrine": "^3.0.0",
 		"doctrine-file": "^2.0.1",
 		"glob": "^10.3.16",
 		"swagger-parser": "^10.0.3",
-		"swagger-ui-express": "^5.0.0"
+		"swagger-ui-express": "^5.0.0",
+		"express-swaggerize-ui": "^1.1.0"
 	}
 }

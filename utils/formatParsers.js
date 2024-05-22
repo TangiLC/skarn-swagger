@@ -1,3 +1,5 @@
+"use strict";
+
 function parseRoute(str) {
 	let split = str.split(" ");
 
@@ -12,7 +14,7 @@ function parseField(str) {
 	return {
 		name: split[0],
 		parameter_type: split[1] || "get",
-		...(split[2] && split[2] === "required" && { required: true }),
+		required: (split[2] && split[2] === "required") || false,
 	};
 }
 
@@ -44,7 +46,7 @@ function parseSchema(obj) {
 
 	if (obj.name && nativeSchemas.indexOf(obj.name.toLowerCase()) === -1) {
 		const spl = obj.name.split(".");
-		return { $ref: "#/components/schemas/" + spl };
+		return { $ref: "#/components/schemas/" + spl[0] };
 	}
 }
 
