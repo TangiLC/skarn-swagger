@@ -1,6 +1,6 @@
 {
 	"name": "talec-swagger",
-	"version": "0.0.9",
+	"version": "0.1.0",
 	"description": "Generates swagger doc & ui based on express existing routes.",
 	"main": "index.js",
 	"scripts": {
@@ -25,7 +25,7 @@
 		"doctrine-file": "^2.0.1",
 		"glob": "^10.3.16",
 		"swagger-parser": "^10.0.3",
-		"swagger-ui-express": "^5.0.0"
-		
+		"swagger-ui-express": "^5.0.0",
+		"recursive-iterator": "^3.3.0"
 	}
 }
