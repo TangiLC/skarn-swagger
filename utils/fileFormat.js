@@ -1,17 +1,18 @@
 const {
-	parseDescription,
-	parseTypedef,
-	parseProperties,
 	parseRoute,
-	parseTag,
 	parseField,
-	parseSchema,
 	parseType,
-	parseEnums,
+	parseSchema,
+	parseItems,
+	parseReturn,
+	parseDescription,
+	parseTag,
 	parseProduces,
 	parseConsumes,
+	parseTypedef,
 	parseSecurity,
-	parseReturn,
+	parseHeaders,
+	parseEnums,
 } = require("./formatParsers");
 
 function fileFormat(comments, responseFormats) {
@@ -21,90 +22,48 @@ function fileFormat(comments, responseFormats) {
 		tags = [],
 		components = {},
 		schemas = {};
+	for (let i in comments) {
+		let desc = parseDescription(comments);
+		if (i == "tags") {
+			if (
+				comments[i].length > 0 &&
+				comments[i][0]["title"] &&
+				comments[i][0]["title"] == "typedef"
+			) {
+				const typedefParsed = parseTypedef(comments[i]);
+				components[typedefParsed.typeName] = typedefParsed.details;
+				continue;
+			}
+			for (let j in comments[i]) {
+				let title = comments[i][j]["title"];
+				let type = comments[i][j]["type"];
 
-	comments.forEach((comment) => {
-		let desc = parseDescription(comment);
-		if (comment.tags) {
-			comment.tags.forEach((tag) => {
-				if (tag.title === "typedef") {
-					const typedefParsed = parseTypedef(tag);
-					components[typedefParsed.typeName] = typedefParsed.details;
-				} else if (tag.title === "route") {
-					route = parseRoute(tag.description);
-					let parsedTag = parseTag(tag);
+				if (title == "route") {
+					route = parseRoute(comments[i][j]["description"]);
+					let tag = parseTag(comments[i]);
 					parameters[route.uri] = parameters[route.uri] || {};
 					parameters[route.uri][route.method] =
 						parameters[route.uri][route.method] || {};
-					parameters[route.uri][route.method]["parameters"] = [];
-					parameters[route.uri][route.method]["description"] = desc;
-					parameters[route.uri][route.method]["tags"] = [parsedTag[0].trim()];
-					tags.push({
-						name: typeof parsedTag[0] === "string" ? parsedTag[0].trim() : "",
-						description:
-							typeof parsedTag[1] === "string" ? parsedTag[1].trim() : "",
-					});
-				} else if (tag.title === "param") {
-					let field = parseField(tag.name),
-						properties = {
-							name: field.name,
-							in: field.parameter_type,
-							description: tag.description,
-							required: field.required,
-						},
-						schema = parseSchema(tag.type);
-
-					if (!schema) {
-						properties.schema = {
-							type: parseType(tag.type),
-							default: tag.default,
-						};
-						if (properties.schema.type == "enum") {
-							let parsedEnum = parseEnums(tag.description);
-							properties.schema.type = parsedEnum.type;
-							properties.schema.enum = parsedEnum.enums;
-						} else if (properties.schema.type == "boolean") {
-							properties.schema.enum = [true, false];
-						}
-					} else {
-						properties.schema = schema;
-						if (tag.type && tag.type.name === "enum") {
-							let parsedEnum = parseEnums(tag.description);
-							properties.schema.type = parsedEnum.type;
-							properties.schema.enum = parsedEnum.enums;
-						}
-					}
-					params.push(properties);
-				} else if (tag.title === "operationId" && route) {
-					parameters[route.uri][route.method]["operationId"] = tag.description;
-				} else if (tag.title === "summary" && route) {
-					parameters[route.uri][route.method]["summary"] = tag.description;
-				} else if (tag.title === "produces" && route) {
-					parameters[route.uri][route.method]["produces"] = parseProduces(
-						tag.description
-					);
-				} else if (tag.title === "consumes" && route) {
-					parameters[route.uri][route.method]["consumes"] = parseConsumes(
-						tag.description
-					);
-				} else if (tag.title === "security" && route) {
-					parameters[route.uri][route.method]["security"] = parseSecurity(
-						tag.description
-					);
-				} else if (tag.title === "deprecated" && route) {
-					parameters[route.uri][route.method]["deprecated"] = true;
-				}
-
-				if (route) {
-					if (route.method === "get" || route.method === "delete") {
-						parameters[route.uri][route.method]["parameters"] = params;
+					if (route.method == "get") {
+						parameters[route.uri][route.method]["parameters"] = [];
 						parameters[route.uri][route.method]["responses"] = parseReturn(
-							comment,
+							comments[i],
 							responseFormats
 						);
-					} else if (route.method.charAt(0) === "p") {
-						let schema = {};
+					}
+					if (route.method.charAt(0) == "p") {
+						//put post patch
+						const schema = {
+							type: "object",
+							properties: {},
+						};
+
 						params.forEach((param) => {
-							schema = param.schema;
+							schema.properties[param.name] = param.schema;
+							if (param.required) {
+								schema.required = schema.required || [];
+								schema.required.push(param.name);
+							}
 						});
 						parameters[route.uri][route.method]["requestBody"] = {
 							content: {
@@ -114,14 +73,118 @@ function fileFormat(comments, responseFormats) {
 							},
 						};
 						parameters[route.uri][route.method]["responses"] = parseReturn(
-							comment,
+							comments[i],
 							responseFormats
 						);
 					}
+					parameters[route.uri][route.method]["description"] = desc;
+					parameters[route.uri][route.method]["tags"] = [tag[0].trim()];
+					tags.push({
+						name: typeof tag[0] === "string" ? tag[0].trim() : "",
+						description: typeof tag[1] === "string" ? tag[1].trim() : "",
+					});
 				}
-			});
+				if (title == "param") {
+					let field = parseField(comments[i][j]["name"]),
+						properties = {
+							name: field.name,
+							in: field.parameter_type,
+							description: comments[i][j]["description"],
+							...(field.required && { required: true }),
+						},
+						schema = parseSchema(comments[i][j]["type"]);
+
+					if (!schema) {
+						properties.schema = {
+							type: parseType(comments[i][j]["type"]),
+							default: comments[i][j]["default"],
+						};
+						if (properties.schema.type == "enum") {
+							let parsedEnum = parseEnums(comments[i][j]["description"]);
+							properties.schema.type = parsedEnum.type;
+							properties.schema.enum = parsedEnum.enums;
+						} else if (properties.schema.type == "boolean") {
+							let boolean = [true, false];
+							properties.schema.enum = boolean;
+						}
+					} else if (schema) {
+						properties.schema = schema;
+						if (type && type.name == "enum") {
+							let parsedEnum = parseEnums(comments[i][j]["description"]);
+							properties.schema.type = parsedEnum.type;
+							properties.schema.enum = parsedEnum.enums;
+						}
+					}
+					params.push(properties);
+				}
+
+				if (title == "operationId" && route) {
+					parameters[route.uri][route.method]["operationId"] =
+						comments[i][j]["description"];
+				}
+
+				if (title == "summary" && route) {
+					parameters[route.uri][route.method]["summary"] =
+						comments[i][j]["description"];
+				}
+
+				if (title == "produces" && route) {
+					parameters[route.uri][route.method]["produces"] = parseProduces(
+						comments[i][j]["description"]
+					);
+				}
+
+				if (title == "consumes" && route) {
+					parameters[route.uri][route.method]["consumes"] = parseConsumes(
+						comments[i][j]["description"]
+					);
+				}
+
+				if (title == "security" && route) {
+					parameters[route.uri][route.method]["security"] = parseSecurity(
+						comments[i][j]["description"]
+					);
+				}
+
+				if (title == "deprecated" && route) {
+					parameters[route.uri][route.method]["deprecated"] = true;
+				}
+
+				if (route && route.method == "get") {
+					parameters[route.uri][route.method]["parameters"] = params;
+					parameters[route.uri][route.method]["responses"] = parseReturn(
+						comments[i],
+						responseFormats
+					);
+				}
+				if (route && route.method == "delete") {
+					parameters[route.uri][route.method]["parameters"] = params;
+					parameters[route.uri][route.method]["responses"] = parseReturn(
+						comments[i],
+						responseFormats
+					);
+				}
+				if (route && route.method.charAt(0) == "p") {
+					let schema = {};
+					params.forEach((param) => {
+						schema = param.schema;
+					});
+
+					parameters[route.uri][route.method]["requestBody"] = {
+						content: {
+							"application/json": {
+								schema: schema,
+							},
+						},
+					};
+					parameters[route.uri][route.method]["responses"] = parseReturn(
+						comments[i],
+						responseFormats
+					);
+				}
+			}
 		}
-	});
+	}
 	return {
 		parameters: parameters,
 		tags: tags,
