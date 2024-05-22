@@ -1,7 +1,7 @@
 "use strict";
 
 // Dependencies.
-const RecursiveIterator = require("../utils/recursive");
+const RecursiveIterator = require("./recursive");
 
 /**
  * Checks if tag is already contained withing target.
@@ -13,19 +13,14 @@ const RecursiveIterator = require("../utils/recursive");
  * @returns {boolean} Does tag is already present in target
  */
 function _tagDuplicated(target, tag) {
-	// Check input is workable.
 	if (target && target.length && tag) {
 		for (let i = 0; i < target.length; i = i + 1) {
 			let targetTag = target[i];
-			// The name of the tag to include already exists in the taget.
-			// Therefore, it's not necessary to be added again.
 			if (targetTag.name === tag.name) {
 				return true;
 			}
 		}
 	}
-
-	// This will indicate that `tag` is not present in `target`.
 	return false;
 }
 
@@ -39,7 +34,6 @@ function _attachTags(conf) {
 	let swaggerObject = conf.swaggerObject;
 	let propertyName = conf.propertyName;
 
-	// Correct deprecated property.
 	if (propertyName === "tag") {
 		propertyName = "tags";
 	}
@@ -128,7 +122,6 @@ function _getSwaggerSchemaWrongProperties() {
 function _correctSwaggerKey(propertyName) {
 	let wrong = _getSwaggerSchemaWrongProperties();
 	if (wrong.indexOf(propertyName) > 0) {
-		// Returns the corrected property name.
 		return propertyName + "s";
 	}
 	return propertyName;
@@ -147,8 +140,6 @@ function _organizeSwaggerProperties(swaggerObject, pathObject, propertyName) {
 		"consumes",
 		"produce",
 		"produces",
-		// 'path',
-		// 'paths',
 		"schema",
 		"schemas",
 		"securityDefinition",
@@ -163,7 +154,7 @@ function _organizeSwaggerProperties(swaggerObject, pathObject, propertyName) {
 		"definitions",
 		"responseFormats",
 	];
-	// Components properties.
+
 	if (propertyName === "components" || propertyName === "component") {
 		if (!swaggerObject["components"]["schemas"])
 			swaggerObject["components"]["schemas"] = {};
@@ -175,9 +166,7 @@ function _organizeSwaggerProperties(swaggerObject, pathObject, propertyName) {
 			swaggerObject["components"]["schemas"][definitionName] =
 				pathObject["components"]["schemas"][definitionName];
 		}
-	}
-	// Common properties.
-	else if (simpleProperties.indexOf(propertyName) !== -1) {
+	} else if (simpleProperties.indexOf(propertyName) !== -1) {
 		let keyName = _correctSwaggerKey(propertyName);
 		let definitionNames = Object.getOwnPropertyNames(pathObject[propertyName]);
 		for (let k = 0; k < definitionNames.length; k = k + 1) {
@@ -185,7 +174,6 @@ function _organizeSwaggerProperties(swaggerObject, pathObject, propertyName) {
 			swaggerObject[keyName][definitionName] =
 				pathObject[propertyName][definitionName];
 		}
-		// Tags.
 	} else if (propertyName === "tag" || propertyName === "tags") {
 		let tag = pathObject[propertyName];
 		_attachTags({
@@ -193,7 +181,6 @@ function _organizeSwaggerProperties(swaggerObject, pathObject, propertyName) {
 			swaggerObject: swaggerObject,
 			propertyName: propertyName,
 		});
-		// Paths.
 	} else {
 		let routes = Object.getOwnPropertyNames(pathObject[propertyName]);
 		for (let k = 0; k < routes.length; k = k + 1) {
@@ -223,10 +210,8 @@ function addDataToSwaggerObject(swaggerObject, data) {
 	for (let i = 0; i < data.length; i = i + 1) {
 		let pathObject = data[i];
 		let propertyNames = Object.getOwnPropertyNames(pathObject);
-		// Iterating the properties of the a given pathObject.
 		for (let j = 0; j < propertyNames.length; j = j + 1) {
 			let propertyName = propertyNames[j];
-			// Do what's necessary to organize the end specification.
 			_organizeSwaggerProperties(swaggerObject, pathObject, propertyName);
 		}
 	}
@@ -259,10 +244,8 @@ function seekWrong(list, wrongSet, problems) {
  */
 function findDeprecated(sources) {
 	let wrong = _getSwaggerSchemaWrongProperties();
-	// accumulate problems encountered
 	let problems = [];
 	sources.forEach(function (source) {
-		// Iterate through `source`, search for `wrong`, accumulate in `problems`.
 		seekWrong(source, wrong, problems);
 	});
 	return problems;
