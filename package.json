@@ -24,10 +24,11 @@
 	],
 	"author": "Skarn",
 	"license": "MIT",
+	"devDependencies": {
+		"prettier": "^3.2.5"
+	},
 	"dependencies": {
 		"glob": "^10.3.16",
-		"prettier": "^3.2.5",
-		"swagger-parser": "^10.0.3",
 		"swagger-ui-express": "^5.0.0"
 	}
 }
