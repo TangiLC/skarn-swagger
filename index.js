@@ -1,3 +1,1 @@
-
-
-module.exports = require('./lib/swagger').generateSpecAndMount;
+module.exports = require("./lib/swagger").generateSpecAndMount;

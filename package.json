@@ -3,13 +3,13 @@
 	"version": "0.1.11",
 	"description": "Generates swagger doc & ui based on express existing routes.",
 	"main": "index.js",
-	"files":[
+	"files": [
 		"index.js",
 		"lib/**",
 		"package.json"
 	],
 	"scripts": {
-		"start": "node test/index.js"
+		"format": "prettier --write \"**/*.js\""
 	},
 	"repository": {
 		"type": "git",
@@ -26,6 +26,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"glob": "^10.3.16",
+		"prettier": "^3.2.5",
 		"swagger-parser": "^10.0.3",
 		"swagger-ui-express": "^5.0.0"
 	}
